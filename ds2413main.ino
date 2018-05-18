@@ -117,35 +117,11 @@ void loop() {
 
 
 bool DS2413Task() {
-
     uint8_t state = read();
     IOint = int(state);
-
     if (state == -1) {
       Serial.println(F("Failed reading the DS2413"));
+      return false;
     }
-    switch (IOint) {
-      case 10:
-        IOA = 0;
-        IOB = 2;
-        break;
-      case 14:
-        IOA = 1;
-        IOB = 2;
-        break;
-      case 11:
-        IOA = 0;
-        IOB = 3;
-        break;
-      case 15:
-        IOA = 1;
-        IOB = 3;
-        break;
-    }
-    Serial.print(F("IOA = "));
-    Serial.print(IOA);
-    Serial.print(F(", IOB = "));
-    Serial.println(IOB);
-
   return true;
 }
