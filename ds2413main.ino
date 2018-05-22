@@ -8,11 +8,18 @@
 #define DS2413_ACK_ERROR 0xFF
 TaskManager manager;
 int DS2413TaskId;
+int addToRingbufferTaskId;
 OneWire oneWire(DS2413_ONEWIRE_PIN);
 uint8_t address[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 int IOint = 0;
 int IOA = 0;
 int IOB = 2;
+RingBuffer<int>  touchBuffer(30);
+#define TOUCH_A 14
+#define TOUCH_B 11
+#define TOUCH_BOTH 15
+#define TOUCH_NONE 10
+
 
 void printBytes(uint8_t *addr, uint8_t count, bool newline = 0) {
   for (uint8_t i = 0; i < count; i++) {
@@ -28,7 +35,6 @@ void printBytes(uint8_t *addr, uint8_t count, bool newline = 0) {
 byte read(void) {
   bool ok = false;
   uint8_t results;
-
   oneWire.reset();
   oneWire.select(address);
   oneWire.write(DS2413_ACCESS_READ);
@@ -65,15 +71,34 @@ bool write(uint8_t state) {
 
 
 
-
-void setup() {
-  Serial.begin(115200);
-  setupDS2413();
-  setupRingbuffer();
+bool DS2413Task() {
+  uint8_t state = read();
+  IOint = int(state);
+  return true;
 }
 
-void setupRingbuffer() {
+bool addToRingbufferTask(){
+  touchBuffer = IOint;
+  Serial.printf("\ncurrent touchBuffer: ");
+  for (int i= 0; i < touchBuffer.count(); i++) {
+    Serial.printf(" %d ,",touchBuffer[i]);
+  }
 
+  if( touchBuffer.get(touchBuffer.count()-1) == TOUCH_NONE) { //if touch is released
+
+   touchBuffer.clear();
+   Serial.printf("buffer cleared");
+  }
+
+  return true;
+}
+
+
+
+
+void setupRingbuffer() {
+  Serial.println(F("Ringbuffer started"));
+  addToRingbufferTaskId = manager.addTask(addToRingbufferTask, 75,true);
 }
 
 void setupDS2413(){
@@ -115,25 +140,12 @@ void setupDS2413(){
 }
 
 
-
+void setup() {
+  Serial.begin(115200);
+  setupDS2413();
+  setupRingbuffer();
+}
 
 void loop() {
   manager.runTasks();
-}
-
-
-
-
-bool DS2413Task() {
-    uint8_t state = read();
-    IOint = int(state);
-    if (state == -1) {
-      Serial.println(F("Failed reading the DS2413"));
-      return false;
-    }
-  return true;
-}
-
-bool addToRingbuffer(){
-
 }
