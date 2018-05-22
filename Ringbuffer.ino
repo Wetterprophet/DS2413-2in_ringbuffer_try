@@ -5,9 +5,9 @@
  *	Licensed under the BSD 3-Clause License. See the LICENSE file for further details.
  *
  *	Implementation of a non-blocking ring-buffer class template.
- */
+*/
 
-#include "RingBuffer.h"
+#include "Ringbuffer.h"
 
 template<typename T>
 RingBuffer<T>::RingBuffer(int size) {
@@ -139,5 +139,3 @@ template<typename T>
 int RingBuffer<T>::_relativeToFirst(int pos) {
 	return (_size - _count + _index + pos) % _size;
 }
-
-

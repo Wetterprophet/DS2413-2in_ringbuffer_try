@@ -1,5 +1,6 @@
 #include "RingBuffer.h"
 #include <OneWire.h>
+#include "Ringbuffer.h"
 #define DS2413_ONEWIRE_PIN (33)
 #define DS2413_FAMILY_ID 0x3A
 #define DS2413_ACCESS_READ 0xF5
@@ -67,9 +68,17 @@ bool write(uint8_t state) {
 
 
 void setup() {
-  DS2413TaskId = manager.addTask(DS2413Task, 75, true);
-
   Serial.begin(115200);
+  setupDS2413();
+  setupRingbuffer();
+}
+
+void setupRingbuffer() {
+
+}
+
+void setupDS2413(){
+  DS2413TaskId = manager.addTask(DS2413Task, 75, true);
 
   Serial.println(F("Looking for a DS2413 on the bus"));
 
@@ -124,4 +133,8 @@ bool DS2413Task() {
       return false;
     }
   return true;
+}
+
+bool addToRingbuffer(){
+
 }
