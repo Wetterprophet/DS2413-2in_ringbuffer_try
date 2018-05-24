@@ -139,3 +139,20 @@ template<typename T>
 int RingBuffer<T>::_relativeToFirst(int pos) {
 	return (_size - _count + _index + pos) % _size;
 }
+/*
+
+template<typename T>
+int RingBuffer<T>::_removeDuplicates() {
+
+}
+
+void rmDup(int array[], int& size) {
+        for (int i = 0; i < size; i++) {
+            for (int j = i + 1; j < size; j++) {
+                if (array[i] == array[j]) {
+                    array[i - 1 ] = array[i];
+                    size--;
+                }
+            }
+        }
+}
