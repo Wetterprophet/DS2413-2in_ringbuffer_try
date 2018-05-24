@@ -141,12 +141,13 @@ bool addToRingbufferTask() {
           sendTouch(TOUCH_A);
         } else if (secondInput == TOUCH_B ||
                    (secondInput == TOUCH_BOTH && thirdInput == TOUCH_B)) {
+          sendTouch(TOUCH_A2B);
         }
       } else if (firstInput == TOUCH_BOTH) {
-        if (secondInput == 0) {
-          sendTouch(TOUCH_BOTH);
-        } else if (secondInput == TOUCH_A) {
-          sendTouch(TOUCH_B2A);
+          if (secondInput == 0) {
+            sendTouch(TOUCH_BOTH);
+          } else if (secondInput == TOUCH_A) {
+            sendTouch(TOUCH_B2A);
 
         } else if (secondInput == TOUCH_B) {
           sendTouch(TOUCH_A2B);
