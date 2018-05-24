@@ -83,7 +83,7 @@ bool DS2413Task() {
 }
 
 void sendTouch(int touch) {
-  Serial.printf("\nThe following Input Sequence was sensed: %s\n", touch);
+  Serial.printf("Input Sequence sensed: %d\n", touch);
 }
 
 bool addToRingbufferTask() {
@@ -142,8 +142,7 @@ bool addToRingbufferTask() {
         } else if (secondInput == TOUCH_B ||
                    (secondInput == TOUCH_BOTH && thirdInput == TOUCH_B)) {
         }
-      }
-      if (firstInput == TOUCH_BOTH) {
+      } else if (firstInput == TOUCH_BOTH) {
         if (secondInput == 0) {
           sendTouch(TOUCH_BOTH);
         } else if (secondInput == TOUCH_A) {
@@ -152,13 +151,12 @@ bool addToRingbufferTask() {
         } else if (secondInput == TOUCH_B) {
           sendTouch(TOUCH_A2B);
         }
-        if (firstInput == TOUCH_B) {
-          if (secondInput == 0) {
-            sendTouch(TOUCH_B);
-          } else if (secondInput == TOUCH_A ||
-                     (secondInput == TOUCH_BOTH && thirdInput == TOUCH_A)) {
-            sendTouch(TOUCH_B2A);
-          }
+      } else if (firstInput == TOUCH_B) {
+        if (secondInput == 0) {
+          sendTouch(TOUCH_B);
+        } else if (secondInput == TOUCH_A ||
+                   (secondInput == TOUCH_BOTH && thirdInput == TOUCH_A)) {
+          sendTouch(TOUCH_B2A);
         }
       }
 
@@ -166,7 +164,8 @@ bool addToRingbufferTask() {
         Serial.printf(" %d ,", touchBuffer[i]);
       }
 
-    } else if (touchCount * touchTaskDelay >= ICETouchTime) {
+    } // endif within min&MaximumTouchTime
+    else if (touchCount * touchTaskDelay >= ICETouchTime) {
       // todo - ICE
       Serial.println("ICE");
       touchBuffer.clear();
