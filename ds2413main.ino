@@ -78,6 +78,20 @@ bool DS2413Task() {
   return true;
 }
 
+
+
+void rmDup(int array[], int& size) {
+        for (int i = 0; i < size; i++) {
+            for (int j = i + 1; j < size; j++) {
+                if (array[i] == array[j]) {
+                    array[i - 1 ] = array[i];
+                    size--;
+                }
+            }
+        }
+}
+
+
 bool addToRingbufferTask() {
   touchBuffer = IOint;
 
@@ -112,8 +126,16 @@ bool addToRingbufferTask() {
 
     if (touchCount * touchTaskDelay >= MinimumTouchTime &&
         touchCount * touchTaskDelay <= MaximumTouchTime) {
-      // todo - decode input
       Serial.printf("input time valid\n");
+      // todo - decode input
+
+    // rmDup(touchBuffer, touchBuffer.count());
+
+    for (int i = 0; i < touchBuffer.count(); i++) {
+      Serial.printf(" %d ,", touchBuffer[i]);
+    }
+
+
     } else if (touchCount * touchTaskDelay >= ICETouchTime) {
       // todo - ICE
       Serial.println("ICE");
@@ -127,6 +149,8 @@ bool addToRingbufferTask() {
 
   return true;
 }
+
+
 
 void setupRingbuffer() {
   Serial.println(F("Ringbuffer started"));
