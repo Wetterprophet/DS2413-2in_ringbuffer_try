@@ -25,6 +25,8 @@ int debounceTouch = 2; // values to be removed from start and end of ringbuffer
 #define TOUCH_B 11
 #define TOUCH_BOTH 15
 #define TOUCH_NONE 10
+#define TOUCH_A2B 12
+#define TOUCH_B2A 21
 
 void printBytes(uint8_t *addr, uint8_t count, bool newline = 0) {
   for (uint8_t i = 0; i < count; i++) {
@@ -84,7 +86,6 @@ void sendTouch(int touch) {
   Serial.printf("\nThe following Input Sequence was sensed: %s\n", touch);
 }
 
-
 bool addToRingbufferTask() {
   touchBuffer = IOint;
 
@@ -95,7 +96,7 @@ bool addToRingbufferTask() {
     // for (int i = 0; i < touchBuffer.count(); i++) {
     //   Serial.printf(" %d ,", touchBuffer[i]);
     // }
-    //Serial.printf("\n    Without release:");
+    // Serial.printf("\n    Without release:");
     touchBuffer.sliceHead(1);
     // for (int i = 0; i < touchBuffer.count(); i++) {
     //   Serial.printf(" %d ,", touchBuffer[i]);
@@ -138,31 +139,27 @@ bool addToRingbufferTask() {
       if (firstInput == TOUCH_A) {
         if (secondInput == 0) {
           sendTouch(TOUCH_A);
+        } else if (secondInput == TOUCH_B ||
+                   (secondInput == TOUCH_BOTH && thirdInput == TOUCH_B)) {
         }
-        else if (secondInput == TOUCH_B ||
-                (secondInput == TOUCH_BOTH && thirdInput == TOUCH_B)) {}
       }
       if (firstInput == TOUCH_BOTH) {
         if (secondInput == 0) {
           sendTouch(TOUCH_BOTH);
-        }
-        else if (secondInput == TOUCH_A) {
+        } else if (secondInput == TOUCH_A) {
           sendTouch(TOUCH_B2A);
 
-        }
-        else if (secondInput == TOUCH_B) {
+        } else if (secondInput == TOUCH_B) {
           sendTouch(TOUCH_A2B);
-
-      }
-      if (firstInput == TOUCH_B) {
-        if (secondInput == 0) {
-          sendTouch(TOUCH_B);
         }
-        else if (secondInput == TOUCH_A ||
-                (secondInput == TOUCH_BOTH && thirdInput == TOUCH_A)) {
-          sendTouch(TOUCH_B2A);
+        if (firstInput == TOUCH_B) {
+          if (secondInput == 0) {
+            sendTouch(TOUCH_B);
+          } else if (secondInput == TOUCH_A ||
+                     (secondInput == TOUCH_BOTH && thirdInput == TOUCH_A)) {
+            sendTouch(TOUCH_B2A);
+          }
         }
-
       }
 
       for (int i = 0; i < touchBuffer.count(); i++) {
