@@ -9,7 +9,7 @@
 TaskManager manager;
 int DS2413TaskId;
 int addToRingbufferTaskId;
-int touchTaskDelay = 28;
+int touchTaskDelay = 25;
 int MinimumTouchTime = 200;
 int MaximumTouchTime = 1000;
 int ICETouchTime = 3000;
@@ -18,7 +18,7 @@ uint8_t address[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 int IOint = 0;
 int IOA = 0;
 int IOB = 2;
-RingBuffer<int> touchBuffer(40);
+RingBuffer<int> touchBuffer(60);
 int debounceTouch = 2; // values to be removed from start and end of ringbuffer
                        // value = touchTaskdelay ms
 #define TOUCH_A 14
@@ -88,6 +88,12 @@ void sendTouch(int touch) {
 
 bool addToRingbufferTask() {
   touchBuffer = IOint;
+  if (touchBuffer.count() * touchTaskDelay >= ICETouchTime) {
+    // todo - ICE
+    Serial.println("ICE");
+    touchBuffer.clear();
+    return true;
+  }
 
   if (touchBuffer.get(touchBuffer.count() - 1) ==
       TOUCH_NONE) { // if touch is released
@@ -107,12 +113,12 @@ bool addToRingbufferTask() {
         touchBuffer.count() - 1); // last real input (no TOUCH_NONE)
     int touchXvalue = 0;
     int touchCount = touchBuffer.count(); //
-    for (int i = 1; i <= touchCount;
-         i++) { // for so many times as there are real input values
-      Serial.printf("\nfor loop #%d = %d", i,
-                    touchBuffer[i - 1]); // print out the iteration
-      touchXvalue += touchBuffer[i - 1]; // add up all the values in array
-    }
+    // for (int i = 1; i <= touchCount;
+    //      i++) { // for so many times as there are real input values
+    //   Serial.printf("\nfor loop #%d = %d", i,
+    //                 touchBuffer[i - 1]); // print out the iteration
+    //   touchXvalue += touchBuffer[i - 1]; // add up all the values in array
+    // }
     if (touchCount * touchTaskDelay >= MinimumTouchTime &&
         touchCount * touchTaskDelay <= MaximumTouchTime) {
       Serial.printf("\n%d was last touch, all values * %d (count) = %d, Touch "
@@ -122,6 +128,9 @@ bool addToRingbufferTask() {
       Serial.printf("input time valid\n");
       int firstInput = 0, secondInput = 0, thirdInput = 0; // remove duplicates
       firstInput = touchBuffer[0];
+      // Serial.printf("touchCount: %d, touchTaskDelay: %d\n", touchCount, touchTaskDelay);
+
+
       for (int i = 0; i < touchBuffer.count(); i++) {
         int j = i + 1;
         if (j < touchBuffer.count()) {
@@ -161,17 +170,12 @@ bool addToRingbufferTask() {
         }
       }
 
-      for (int i = 0; i < touchBuffer.count(); i++) {
-        Serial.printf(" %d ,", touchBuffer[i]);
-      }
+      // for (int i = 0; i < touchBuffer.count(); i++) {
+      //   Serial.printf(" %d ,", touchBuffer[i]);
+      // }
 
     } // endif within min&MaximumTouchTime
-    else if (touchCount * touchTaskDelay >= ICETouchTime) {
-      // todo - ICE
-      Serial.println("ICE");
-      touchBuffer.clear();
-      return true;
-    }
+
 
     touchBuffer.clear();
     // Serial.printf("buffer cleared\n");
